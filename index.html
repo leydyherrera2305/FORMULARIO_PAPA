@@ -226,6 +226,7 @@ function cortePara(s){
   return corteAuto(s);
 }
 function nombreCorte(c){
+  if (c.nombre) return c.nombre;
   const a = aFecha(c.desde), b = aFecha(c.hasta);
   return `CORTE DEL ${p2(a.getUTCDate())} AL ${p2(b.getUTCDate())} DE ${MESES[b.getUTCMonth()].toUpperCase()}`;
 }
@@ -719,7 +720,9 @@ function pantallaAjustes(){
           n++;
         }
         for (const c of d.cortes || []) {
-          if (!S.cortesEditados.some(e => !(e.hasta < c.desde || e.desde > c.hasta))) S.cortesEditados.push({ desde: c.desde, hasta: c.hasta });
+          // El corte del Excel manda: reemplaza cualquier corte que se cruce con sus fechas
+          S.cortesEditados = S.cortesEditados.filter(e => e.hasta < c.desde || e.desde > c.hasta);
+          S.cortesEditados.push({ desde: c.desde, hasta: c.hasta, nombre: c.nombre || undefined });
           if (c.entrega && !S.entregas[c.desde]) S.entregas[c.desde] = c.entrega;
         }
         guardar(); aviso(`Se agregaron ${n} viajes`); ir("inicio"); return;
