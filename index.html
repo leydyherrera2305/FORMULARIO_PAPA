@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>Cuenta de Cobro Transavinco</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#1f2a44">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Archivo:wght@600;800&display=swap">
+<style>
+/* Layout: una sola columna tipo app, botones grandes, la franja amarilla del formato de Transavinco como acento */
+:root{
+  --bg:#f3f4f7; --card:#ffffff; --ink:#1b2233; --muted:#59627a; --line:#d6dae4;
+  --accent:#ffd966; --accent-ink:#3d2f00; --primary:#1f6f43; --primary-ink:#ffffff;
+  --blue:#1f2a44; --blue-ink:#ffffff; --danger:#b3261e; --warn-bg:#fff4d1; --warn-ink:#5c4400;
+  --sel:#e3f1e8; --focus:#2c6bed;
+  --f-body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-head:"Archivo", "Arial Narrow", system-ui, sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12151d; --card:#1c212c; --ink:#eef1f7; --muted:#a8b0c2; --line:#323a4a;
+  --accent:#e9c349; --accent-ink:#2b2000; --primary:#2f9a60; --primary-ink:#ffffff;
+  --blue:#3a4f82; --blue-ink:#ffffff; --danger:#f08a80; --warn-bg:#3a3014; --warn-ink:#f5dc93;
+  --sel:#1d3a2a; --focus:#7aa7ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151d; --card:#1c212c; --ink:#eef1f7; --muted:#a8b0c2; --line:#323a4a;
+  --accent:#e9c349; --accent-ink:#2b2000; --primary:#2f9a60; --primary-ink:#ffffff;
+  --blue:#3a4f82; --blue-ink:#ffffff; --danger:#f08a80; --warn-bg:#3a3014; --warn-ink:#f5dc93;
+  --sel:#1d3a2a; --focus:#7aa7ff; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:19px;line-height:1.4;margin:0}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0 48px;display:flex;flex-direction:column;gap:18px}
+header.top{background:var(--accent);color:var(--accent-ink);margin-top:calc(-1 * env(safe-area-inset-top, 0px));padding-top:env(safe-area-inset-top, 0px)}
+header.top .in{max-width:560px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+header.top b{font-family:var(--f-head);font-weight:800;letter-spacing:.06em;font-size:20px}
+header.top span{font-size:15px;text-align:right}
+h1,h2{font-family:var(--f-head);font-weight:800;margin:0;text-wrap:balance}
+h1{font-size:28px;line-height:1.15}
+h2{font-size:21px}
+p{margin:0}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px}
+button,.btn{font:inherit;cursor:pointer;border-radius:var(--r);border:2px solid transparent;min-height:60px;padding:12px 18px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;width:100%;text-decoration:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.b-primary{background:var(--primary);color:var(--primary-ink);font-size:22px;min-height:72px}
+.b-blue{background:var(--blue);color:var(--blue-ink);font-size:21px;min-height:68px}
+.b-ghost{background:var(--card);color:var(--ink);border-color:var(--line)}
+.b-danger{background:transparent;color:var(--danger);border-color:var(--danger)}
+.b-small{min-height:48px;font-size:17px;padding:8px 12px;width:auto}
+.row{display:flex;gap:10px}
+.row>*{flex:1;min-width:0}
+svg.i{width:26px;height:26px;flex:none}
+/* Navegador de corte */
+.corte{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;align-items:center}
+.corte button{min-height:56px;padding:0;background:var(--card);border-color:var(--line);color:var(--ink)}
+.corte button:disabled{opacity:.35;cursor:default}
+.corte .t{text-align:center}
+.corte .t small{display:block;color:var(--muted);font-size:15px;text-transform:uppercase;letter-spacing:.08em}
+.corte .t strong{font-family:var(--f-head);font-size:20px;line-height:1.2}
+.resumen{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.resumen strong{font-size:22px}
+/* Lista de viajes */
+.viajes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.viajes button{background:var(--card);border:1px solid var(--line);color:var(--ink);justify-content:space-between;text-align:left;font-weight:400;min-height:68px;padding:10px 14px}
+.viajes .d{display:flex;flex-direction:column;min-width:0}
+.viajes .d b{font-weight:700}
+.viajes .d span{color:var(--muted);font-size:16px}
+.viajes .k{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.viajes .ed{color:var(--muted);font-size:15px;display:flex;align-items:center;gap:4px}
+.vacio{border:2px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--muted)}
+/* Formulario */
+label.q{font-family:var(--f-head);font-weight:800;font-size:21px}
+input[type=date],input[type=text],input[type=number],select{font:inherit;font-size:22px;width:100%;min-height:60px;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+input.kilos{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.dia{font-size:18px;font-weight:700}
+.aviso{background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;padding:10px 14px;font-size:17px}
+.destinos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.destinos button{background:var(--card);border:2px solid var(--line);color:var(--ink);min-height:66px;font-size:18px;padding:8px;line-height:1.15;position:relative}
+.destinos button[aria-pressed="true"]{background:var(--sel);border-color:var(--primary);box-shadow:inset 0 0 0 2px var(--primary)}
+.destinos button[aria-pressed="true"]::after{content:"";position:absolute;top:8px;right:8px;width:12px;height:12px;border-radius:50%;background:var(--primary)}
+.eco{font-size:17px;color:var(--muted);text-align:right;min-height:1.4em}
+.err{color:var(--danger);font-weight:700;font-size:17px}
+.atras{background:none;border:none;color:var(--ink);min-height:48px;width:auto;padding:0;justify-content:flex-start;font-size:18px}
+/* Tabla previa */
+.tabla{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:16px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+td.m{white-space:normal;font-size:14px}
+table{font-size:15px}
+th{background:var(--bg);font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td.n,th.n{text-align:right}
+tbody tr{cursor:pointer}
+tfoot td{font-weight:700;border-bottom:none}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom, 0px));background:var(--blue);color:var(--blue-ink);padding:14px 22px;border-radius:30px;font-weight:700;z-index:50;max-width:calc(100% - 32px);text-align:center}
+.pie{text-align:center}
+.pie button{background:none;border:none;color:var(--muted);text-decoration:underline;min-height:48px;font-weight:400;font-size:16px;width:auto;margin:0 auto}
+/* Dialogo */
+.velo{position:fixed;inset:0;background:rgba(10,14,22,.55);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px))}
+.dlg{background:var(--card);color:var(--ink);border-radius:18px;padding:20px;width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px}
+.dlg h2{font-size:23px}
+/* Ajustes */
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo span{font-size:15px;color:var(--muted)}
+.campo input{font-size:18px;min-height:50px}
+.precio{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.precio .nom{grid-column:1/-1;display:flex;gap:8px}
+.precio .nom input{flex:1;min-width:0}
+.precio .nom button{width:auto;min-height:50px}
+.nota{font-size:16px;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="top"><div class="in"><b id="marca">TRANSAVINCO</b><span id="quien"></span></div></header>
+<main class="wrap" id="app"></main>
+<div id="capa"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   DATOS INICIALES (se pueden cambiar luego en "Ajustes")
+   ============================================================ */
+const INICIAL = {
+  perfil: { debeA: "Jorge Alonso Herrera", nombreCompleto: "JORGE ALONSO HERRERA VILLALOBOS",
+            cc: "", placa: "SOQ068", telefono: "", zona: "C20" },
+  empresa: { nombre: "TRANSAVINCO", direccion: "Carrera 66 N° 96-86/ Los Andes / Teléfono: 226384 - 2267125", nit: "900.73.905-9" },
+  // Cortes: uno empieza el día 10 y otro el día 24 de cada mes (como en el Excel)
+  corte: { dia1: 10, dia2: 24 },
+  // valorKilo: precio por kilo (se multiplica por los kilos). indicador: valor fijo por viaje.
+  precios: [{ desde: "2026-01-01", destinos: [
+    { nombre: "BOGOTÁ",           valorKilo: 98, indicador: 90963 },
+    { nombre: "BOGOTÁ MAYORISTA", valorKilo: 68, indicador: 0 },
+    { nombre: "BOGOTÁ P. VENTA",  valorKilo: 52, indicador: 0 },
+    { nombre: "FUSA",             valorKilo: 0,  indicador: 381282 },
+    { nombre: "CAQUEZA",          valorKilo: 0,  indicador: 127094 },
+    { nombre: "UBATE",            valorKilo: 0,  indicador: 426605 },
+    { nombre: "TUNJA",            valorKilo: 0,  indicador: 550198 },
+    { nombre: "CHIQUINQUIRA",     valorKilo: 0,  indicador: 540606 }
+  ]}],
+  viajes: [],          // {id, fecha:"AAAA-MM-DD", destino, kilos}
+  cortesEditados: [],  // {desde, hasta} cuando se cambian las fechas de un corte
+  entregas: {},        // desde -> fecha de entrega
+  ultimaFecha: null
+};
+const CLAVE = "cuentaCobro.v1";
+let S, guardaOK = true;
+function cargar(){
+  try { const r = localStorage.getItem(CLAVE); if (r) S = JSON.parse(r); } catch(e) {}
+  if (!S || !S.precios) S = JSON.parse(JSON.stringify(INICIAL));
+  for (const k of Object.keys(INICIAL)) if (S[k] === undefined) S[k] = JSON.parse(JSON.stringify(INICIAL[k]));
+}
+function guardar(){
+  try { localStorage.setItem(CLAVE, JSON.stringify(S)); guardaOK = true; } catch(e) { guardaOK = false; }
+}
+
+/* ============================================================
+   FECHAS, DOMINGOS Y FESTIVOS DE COLOMBIA
+   ============================================================ */
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const p2 = n => String(n).padStart(2,"0");
+const aFecha = s => { const [y,m,d] = s.split("-").map(Number); return new Date(Date.UTC(y,m-1,d)); };
+const aISO = d => `${d.getUTCFullYear()}-${p2(d.getUTCMonth()+1)}-${p2(d.getUTCDate())}`;
+const sumar = (s,n) => { const d = aFecha(s); d.setUTCDate(d.getUTCDate()+n); return aISO(d); };
+const hoy = () => { const d = new Date(); return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; };
+const diaSemana = s => aFecha(s).getUTCDay();
+const ddmmaaaa = s => { const [y,m,d] = s.split("-"); return `${d}/${m}/${y}`; };
+const largo = s => { const d = aFecha(s); return `${DIAS[d.getUTCDay()]} ${d.getUTCDate()} de ${MESES[d.getUTCMonth()]}`; };
+const corto = s => { const d = aFecha(s); return `${DIAS[d.getUTCDay()].slice(0,3)} ${d.getUTCDate()} ${MESES[d.getUTCMonth()].slice(0,3)}`; };
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+
+const cacheFestivos = {};
+function festivos(y){
+  if (cacheFestivos[y]) return cacheFestivos[y];
+  const f = {};
+  const pon = (s, n) => { f[s] = n; };
+  const lunes = s => { const w = diaSemana(s); return sumar(s, (8 - w) % 7); };
+  const fecha = (m,d) => `${y}-${p2(m)}-${p2(d)}`;
+  // Pascua (algoritmo de Meeus)
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,ff=Math.floor((b+8)/25),g=Math.floor((b-ff+1)/3),
+        h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+        mes=Math.floor((h+l-7*m+114)/31),dia=((h+l-7*m+114)%31)+1;
+  const pascua = fecha(mes, dia);
+  pon(fecha(1,1),"Año Nuevo"); pon(fecha(5,1),"Día del Trabajo"); pon(fecha(7,20),"Independencia");
+  pon(fecha(8,7),"Batalla de Boyacá"); pon(fecha(12,8),"Inmaculada Concepción"); pon(fecha(12,25),"Navidad");
+  pon(lunes(fecha(1,6)),"Reyes Magos"); pon(lunes(fecha(3,19)),"San José"); pon(lunes(fecha(6,29)),"San Pedro y San Pablo");
+  pon(lunes(fecha(8,15)),"Asunción de la Virgen"); pon(lunes(fecha(10,12)),"Día de la Raza");
+  pon(lunes(fecha(11,1)),"Todos los Santos"); pon(lunes(fecha(11,11)),"Independencia de Cartagena");
+  pon(sumar(pascua,-3),"Jueves Santo"); pon(sumar(pascua,-2),"Viernes Santo");
+  pon(sumar(pascua,43),"Ascensión del Señor"); pon(sumar(pascua,64),"Corpus Christi"); pon(sumar(pascua,71),"Sagrado Corazón");
+  return cacheFestivos[y] = f;
+}
+function diaNoLaboral(s){
+  if (!s) return null;
+  const fest = festivos(Number(s.slice(0,4)))[s];
+  if (fest) return `es festivo (${fest})`;
+  if (diaSemana(s) === 0) return "es domingo";
+  return null;
+}
+
+/* ============================================================
+   CORTES
+   ============================================================ */
+function corteAuto(s){
+  const d1 = Number(S.corte.dia1)||10, d2 = Number(S.corte.dia2)||24;
+  const [y,m,d] = s.split("-").map(Number);
+  const f = (yy,mm,dd) => aISO(new Date(Date.UTC(yy,mm-1,dd)));
+  let c;
+  if (d >= d2) c = { desde: f(y,m,d2), hasta: f(y,m+1,d1-1) };
+  else if (d >= d1) c = { desde: f(y,m,d1), hasta: f(y,m,d2-1) };
+  else c = { desde: f(y,m-1,d2), hasta: f(y,m,d1-1) };
+  // Que no se cruce con un corte al que se le cambiaron las fechas
+  for (const e of S.cortesEditados){
+    if (e.hasta < s && e.hasta >= c.desde) c.desde = sumar(e.hasta,1);
+    if (e.desde > s && e.desde <= c.hasta) c.hasta = sumar(e.desde,-1);
+  }
+  return c;
+}
+function cortePara(s){
+  for (const e of S.cortesEditados) if (e.desde <= s && s <= e.hasta) return { ...e };
+  return corteAuto(s);
+}
+function nombreCorte(c){
+  const a = aFecha(c.desde), b = aFecha(c.hasta);
+  return `CORTE DEL ${p2(a.getUTCDate())} AL ${p2(b.getUTCDate())} DE ${MESES[b.getUTCMonth()].toUpperCase()}`;
+}
+function corteBonito(c){
+  const a = aFecha(c.desde), b = aFecha(c.hasta);
+  const ma = MESES[a.getUTCMonth()], mb = MESES[b.getUTCMonth()];
+  return ma === mb ? `${a.getUTCDate()} al ${b.getUTCDate()} de ${mb}` : `${a.getUTCDate()} de ${ma} al ${b.getUTCDate()} de ${mb}`;
+}
+function viajesDe(c){
+  return S.viajes.filter(v => v.fecha >= c.desde && v.fecha <= c.hasta)
+    .sort((x,y) => x.fecha < y.fecha ? -1 : x.fecha > y.fecha ? 1 : x.creado - y.creado);
+}
+function fechaEntrega(c){
+  if (S.entregas[c.desde]) return S.entregas[c.desde];
+  const h = hoy();
+  return h > c.hasta ? h : sumar(c.hasta, 1);
+}
+
+/* ============================================================
+   PRECIOS Y CÁLCULOS
+   ============================================================ */
+function listaPrecios(fecha){
+  const ls = [...S.precios].sort((a,b) => a.desde < b.desde ? -1 : 1);
+  let el = ls[0];
+  for (const l of ls) if (l.desde <= fecha) el = l;
+  return el;
+}
+function calcular(v){
+  const p = listaPrecios(v.fecha).destinos.find(d => d.nombre === v.destino) || { valorKilo: 0, indicador: 0 };
+  const vk = Number(p.valorKilo)||0, ind = Number(p.indicador)||0;
+  const bruto = v.kilos * vk;
+  return { valorKilo: vk, bruto, indicador: ind, neto: bruto + ind };
+}
+function totales(vs){
+  const t = { kilos:0, bruto:0, indicador:0, neto:0 };
+  for (const v of vs){ const c = calcular(v); t.kilos += v.kilos; t.bruto += c.bruto; t.indicador += c.indicador; t.neto += c.neto; }
+  return t;
+}
+function destinosDisponibles(fecha){ return listaPrecios(fecha || hoy()).destinos.map(d => d.nombre); }
+
+/* Formatos colombianos: 1.035.917 y 947,80 */
+const miles = n => { const s = String(Math.round(Math.abs(n))); return (n < -0.5 ? "-" : "") + s.replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
+const plata = n => "$ " + miles(n);
+const kg = n => (Math.round(n*100)/100).toFixed(2).replace(".", ",");
+const kgBonito = n => { const [e,d] = (Math.round(n*100)/100).toFixed(2).split("."); return miles(Number(e)) + "," + d; };
+function leerKilos(t){
+  let s = String(t||"").trim().replace(/\s|kgs?|kilos?/gi, "");
+  if (!s) return NaN;
+  if (s.includes(",") && s.includes(".")) s = s.replace(/\./g,"").replace(",",".");
+  else if (s.includes(",")) s = s.replace(",",".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g,"");
+  if (!/^\d*\.?\d*$/.test(s)) return NaN;
+  const n = Number(s);
+  return isFinite(n) ? n : NaN;
+}
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ============================================================
+   DIÁLOGOS Y AVISOS (sin alert/confirm del navegador)
+   ============================================================ */
+function preguntar(titulo, texto, botones){
+  return new Promise(res => {
+    const capa = document.getElementById("capa");
+    capa.innerHTML = `<div class="velo" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="dlg">
+      <h2 id="dlgT">${esc(titulo)}</h2>${texto ? `<p>${texto}</p>` : ""}
+      ${botones.map((b,i) => `<button type="button" class="${b.clase||"b-ghost"}" data-i="${i}">${esc(b.texto)}</button>`).join("")}
+    </div></div>`;
+    capa.querySelectorAll("button").forEach(b => b.onclick = () => { capa.innerHTML = ""; res(botones[b.dataset.i].valor); });
+    capa.querySelector("button").focus();
+  });
+}
+let tTimer;
+function aviso(t){
+  let el = document.querySelector(".toast");
+  if (!el){ el = document.createElement("div"); el.className = "toast"; el.setAttribute("role","status"); document.body.appendChild(el); }
+  el.textContent = t; el.hidden = false;
+  clearTimeout(tTimer); tTimer = setTimeout(() => el.hidden = true, 2600);
+}
+const ICON = {
+  mas:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  doc:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 2h8l5 5v15H6z"/><path d="M14 2v5h5M9 13h7M9 17h7"/></svg>',
+  izq:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  der:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  lapiz:'<svg class="i" style="width:18px;height:18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
+  bajar:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg>',
+  enviar:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8z"/></svg>',
+  ver:'<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'
+};
+
+/* ============================================================
+   PANTALLAS
+   ============================================================ */
+const app = document.getElementById("app");
+let refCorte = null;    // una fecha dentro del corte que se está viendo
+let editando = null;    // id del viaje que se corrige
+let borrador = null;    // datos del formulario de viaje
+
+function ir(vista){ if (location.hash === "#" + vista) pintar(); else location.hash = vista; }
+window.addEventListener("hashchange", pintar);
+
+function pintar(){
+  document.getElementById("marca").textContent = S.empresa.nombre;
+  document.getElementById("quien").textContent = `${S.perfil.debeA.split(" ")[0]} · ${S.perfil.placa}`;
+  const v = location.hash.replace("#","");
+  if (v === "viaje") pantallaViaje();
+  else if (v === "cuenta") pantallaCuenta();
+  else if (v === "ajustes") pantallaAjustes();
+  else pantallaInicio();
+  window.scrollTo(0,0);
+}
+
+/* ---------- Inicio ---------- */
+function pantallaInicio(){
+  editando = null; borrador = null;
+  const c = cortePara(refCorte || S.ultimaFecha || hoy());
+  const vs = viajesDe(c), t = totales(vs);
+  const hayDespues = cortePara(sumar(c.hasta,1)).desde <= (S.ultimaFecha && S.ultimaFecha > hoy() ? S.ultimaFecha : hoy());
+  app.innerHTML = `
+    ${!guardaOK ? `<p class="aviso">Este teléfono no está guardando los datos. Abra la página en Chrome normal (no en modo incógnito).</p>` : ""}
+    ${!S.perfil.cc || !S.perfil.telefono ? `<button type="button" class="aviso" id="faltan" style="min-height:0;font-weight:400;text-align:left;justify-content:flex-start">Faltan la cédula o el teléfono para la cuenta de cobro. Toque aquí para llenarlos.</button>` : ""}
+    <section class="corte" aria-label="Corte">
+      <button type="button" id="ant" aria-label="Corte anterior">${ICON.izq}</button>
+      <div class="t"><small>Corte</small><strong>${esc(corteBonito(c))}</strong></div>
+      <button type="button" id="sig" aria-label="Corte siguiente" ${hayDespues ? "" : "disabled"}>${ICON.der}</button>
+    </section>
+    <div class="card">
+      <div class="resumen"><span>${vs.length} ${vs.length === 1 ? "viaje" : "viajes"}</span><strong>${plata(t.neto)}</strong></div>
+    </div>
+    <button type="button" class="b-primary" id="nuevo">${ICON.mas} Anotar un viaje</button>
+    ${vs.length ? `<ul class="viajes">${vs.map(v => `<li><button type="button" data-id="${v.id}">
+        <span class="d"><b>${esc(v.destino)}</b><span>${cap(corto(v.fecha))}</span></span>
+        <span class="d" style="align-items:flex-end"><span class="k">${kgBonito(v.kilos)} kg</span><span class="ed">${ICON.lapiz} Corregir</span></span>
+      </button></li>`).join("")}</ul>`
+    : `<p class="vacio">Todavía no hay viajes en este corte.<br>Toque <b>Anotar un viaje</b> para empezar.</p>`}
+    <button type="button" class="b-blue" id="cuenta">${ICON.doc} Sacar la cuenta de cobro</button>
+    <div class="pie"><button type="button" id="ajustes">Ajustes: precios y datos</button></div>`;
+  document.getElementById("ant").onclick = () => { refCorte = sumar(c.desde,-1); pintar(); };
+  document.getElementById("sig").onclick = () => { refCorte = sumar(c.hasta,1); pintar(); };
+  document.getElementById("nuevo").onclick = () => { editando = null; borrador = null; ir("viaje"); };
+  document.getElementById("cuenta").onclick = () => { refCorte = c.desde; ir("cuenta"); };
+  document.getElementById("ajustes").onclick = () => ir("ajustes");
+  const fal = document.getElementById("faltan"); if (fal) fal.onclick = () => ir("ajustes");
+  app.querySelectorAll(".viajes button").forEach(b => b.onclick = () => { editando = b.dataset.id; borrador = null; ir("viaje"); });
+}
+
+/* ---------- Anotar / corregir viaje ---------- */
+function fechaSugerida(){
+  const h = hoy();
+  if (!diaNoLaboral(h)) return h;
+  let s = h; for (let i=0;i<7 && diaNoLaboral(s);i++) s = sumar(s,-1);
+  return s;
+}
+function pantallaViaje(){
+  const v = editando ? S.viajes.find(x => x.id === editando) : null;
+  if (editando && !v){ editando = null; }
+  if (!borrador) borrador = v ? { fecha: v.fecha, destino: v.destino, kilos: kg(v.kilos).replace(/,00$/,"") } : { fecha: fechaSugerida(), destino: "", kilos: "" };
+  const b = borrador;
+  const dest = destinosDisponibles(b.fecha);
+  if (b.destino && !dest.includes(b.destino)) dest.push(b.destino);
+  const malo = diaNoLaboral(b.fecha);
+  app.innerHTML = `
+    <button type="button" class="atras" id="volver">${ICON.izq} Volver</button>
+    <h1>${v ? "Corregir viaje" : "Anotar un viaje"}</h1>
+    <div class="card">
+      <label class="q" for="fecha">¿Qué día fue el viaje?</label>
+      <input type="date" id="fecha" value="${esc(b.fecha)}">
+      <p class="dia" id="diaTxt">${b.fecha ? cap(largo(b.fecha)) : ""}</p>
+      <div class="row"><button type="button" class="b-ghost b-small" id="hoy">Hoy</button><button type="button" class="b-ghost b-small" id="ayer">Ayer</button></div>
+      ${malo ? `<p class="aviso">Ojo: ese día ${esc(malo)}.</p>` : ""}
+    </div>
+    <div class="card">
+      <span class="q" style="font-family:var(--f-head);font-weight:800;font-size:21px" id="qDest">¿A dónde fue?</span>
+      <div class="destinos" role="group" aria-labelledby="qDest">
+        ${dest.map(d => `<button type="button" data-d="${esc(d)}" aria-pressed="${d === b.destino}">${esc(d)}</button>`).join("")}
+      </div>
+    </div>
+    <div class="card">
+      <label class="q" for="kilos">¿Cuántos kilos llevó?</label>
+      <input type="text" inputmode="decimal" autocomplete="off" class="kilos" id="kilos" placeholder="0,00" value="${esc(b.kilos)}">
+      <p class="eco" id="eco"></p>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+    <button type="button" class="b-primary" id="guardar">${v ? "Guardar cambios" : "Guardar viaje"}</button>
+    ${v ? `<button type="button" class="b-danger" id="borrar">Borrar este viaje</button>`
+        : `<button type="button" class="b-ghost" id="otro">Guardar y anotar otro</button>`}`;
+  const $f = document.getElementById("fecha"), $k = document.getElementById("kilos");
+  const eco = () => { const n = leerKilos($k.value); document.getElementById("eco").textContent = $k.value.trim() ? (isNaN(n) ? "Escriba solo números" : `= ${kgBonito(n)} kilos`) : ""; };
+  eco();
+  $f.onchange = () => { b.fecha = $f.value; b.kilos = $k.value; pantallaViaje(); };
+  document.getElementById("hoy").onclick = () => { b.fecha = hoy(); b.kilos = $k.value; pantallaViaje(); };
+  document.getElementById("ayer").onclick = () => { b.fecha = sumar(hoy(),-1); b.kilos = $k.value; pantallaViaje(); };
+  $k.oninput = () => { b.kilos = $k.value; eco(); };
+  app.querySelectorAll(".destinos button").forEach(x => x.onclick = () => {
+    b.destino = x.dataset.d;
+    app.querySelectorAll(".destinos button").forEach(y => y.setAttribute("aria-pressed", String(y === x)));
+  });
+  document.getElementById("volver").onclick = () => history.length > 1 ? history.back() : ir("inicio");
+  document.getElementById("guardar").onclick = () => guardarViaje(false);
+  if (v) document.getElementById("borrar").onclick = async () => {
+    const ok = await preguntar("¿Borrar este viaje?", `${esc(v.destino)}, ${esc(largo(v.fecha))}, ${kgBonito(v.kilos)} kg.`,
+      [{ texto: "Sí, borrarlo", clase: "b-danger", valor: true }, { texto: "No, dejarlo", valor: false }]);
+    if (!ok) return;
+    S.viajes = S.viajes.filter(x => x.id !== v.id); guardar();
+    refCorte = v.fecha; aviso("Viaje borrado"); ir("inicio");
+  };
+  else document.getElementById("otro").onclick = () => guardarViaje(true);
+}
+async function guardarViaje(otro){
+  const b = borrador, err = document.getElementById("err");
+  b.kilos = document.getElementById("kilos").value;
+  const n = leerKilos(b.kilos);
+  if (!b.fecha) { err.textContent = "Falta el día del viaje."; return; }
+  if (!b.destino) { err.textContent = "Falta tocar a dónde fue."; return; }
+  if (isNaN(n) || n <= 0) { err.textContent = "Falta escribir los kilos."; document.getElementById("kilos").focus(); return; }
+  err.textContent = "";
+  const malo = diaNoLaboral(b.fecha);
+  if (malo){
+    const ok = await preguntar("¿Está seguro de la fecha?", `El ${esc(largo(b.fecha))} ${esc(malo)}.`,
+      [{ texto: "Cambiar la fecha", clase: "b-primary", valor: false }, { texto: "Sí, guardar así", valor: true }]);
+    if (!ok) { document.getElementById("fecha").focus(); return; }
+  }
+  if (n > 15000 || n < 20){
+    const ok = await preguntar("Revise los kilos", `Escribió <b>${kgBonito(n)} kilos</b>. ¿Está bien?`,
+      [{ texto: "Corregir los kilos", clase: "b-primary", valor: false }, { texto: "Sí, está bien", valor: true }]);
+    if (!ok) { document.getElementById("kilos").focus(); return; }
+  }
+  const repetido = S.viajes.find(x => x.id !== editando && x.fecha === b.fecha && x.destino === b.destino && Math.abs(x.kilos - n) < 0.005);
+  if (repetido){
+    const ok = await preguntar("Este viaje ya está anotado", `Ya hay un viaje a ${esc(b.destino)} el ${esc(largo(b.fecha))} con ${kgBonito(n)} kg.`,
+      [{ texto: "No guardar", clase: "b-primary", valor: false }, { texto: "Guardarlo otra vez", valor: true }]);
+    if (!ok) return;
+  }
+  if (editando){
+    const v = S.viajes.find(x => x.id === editando);
+    Object.assign(v, { fecha: b.fecha, destino: b.destino, kilos: n });
+  } else {
+    S.viajes.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), fecha: b.fecha, destino: b.destino, kilos: n, creado: Date.now() });
+  }
+  S.ultimaFecha = b.fecha; refCorte = b.fecha; guardar();
+  if (otro){
+    let s = sumar(b.fecha,1); for (let i=0;i<7 && diaNoLaboral(s);i++) s = sumar(s,1);
+    borrador = { fecha: s, destino: "", kilos: "" };
+    pantallaViaje(); window.scrollTo(0,0);
+    aviso("Guardado. Anote el siguiente.");
+  } else {
+    aviso(editando ? "Cambios guardados" : "Viaje guardado");
+    editando = null; borrador = null; ir("inicio");
+  }
+}
+
+/* ---------- Cuenta de cobro ---------- */
+function pantallaCuenta(){
+  const c = cortePara(refCorte || S.ultimaFecha || hoy());
+  const vs = viajesDe(c), t = totales(vs), fe = fechaEntrega(c);
+  const enMarco = window.self !== window.top;
+  app.innerHTML = `
+    <button type="button" class="atras" id="volver">${ICON.izq} Volver</button>
+    <h1>Cuenta de cobro</h1>
+    <div class="card">
+      <label class="q" for="entrega">Fecha de entrega</label>
+      <input type="date" id="entrega" value="${esc(fe)}">
+      <span class="q" style="font-family:var(--f-head);font-weight:800;font-size:21px">Corte</span>
+      <div class="row">
+        <label class="campo"><span>Desde</span><input type="date" id="desde" value="${c.desde}"></label>
+        <label class="campo"><span>Hasta</span><input type="date" id="hasta" value="${c.hasta}"></label>
+      </div>
+      <p class="nota">${esc(nombreCorte(c))}</p>
+    </div>
+    ${vs.length ? `
+    <p class="nota">Revise los viajes. Si algo está mal, toque la fila para corregirlo.</p>
+    <div class="tabla"><table>
+      <thead><tr><th>Fecha</th><th>Municipio</th><th class="n">Kilos</th><th class="n">Valor neto</th></tr></thead>
+      <tbody>${vs.map(v => `<tr data-id="${v.id}"><td>${ddmmaaaa(v.fecha).slice(0,5)}</td><td class="m">${esc(v.destino)}</td><td class="n">${kg(v.kilos)}</td><td class="n">${plata(calcular(v).neto)}</td></tr>`).join("")}</tbody>
+      <tfoot><tr><td colspan="2">TOTAL NETO</td><td class="n">${kg(t.kilos)}</td><td class="n">${plata(t.neto)}</td></tr></tfoot>
+    </table></div>
+    ${enMarco ? `<p class="aviso">Esta es una vista de prueba. Para descargar o enviar el PDF, abra la versión publicada del formulario.</p>` : ""}
+    <button type="button" class="b-primary" id="enviar">${ICON.enviar} Enviar PDF (WhatsApp o correo)</button>
+    <button type="button" class="b-blue" id="bajar">${ICON.bajar} Descargar PDF</button>
+    <button type="button" class="b-ghost" id="ver">${ICON.ver} Ver el PDF para imprimir</button>`
+    : `<p class="vacio">No hay viajes en este corte.</p>`}`;
+  document.getElementById("volver").onclick = () => ir("inicio");
+  document.getElementById("entrega").onchange = e => { S.entregas[c.desde] = e.target.value; guardar(); };
+  const cambiarCorte = () => {
+    const d = document.getElementById("desde").value, h = document.getElementById("hasta").value;
+    if (!d || !h || d > h) { aviso("La fecha 'Desde' debe ser antes de 'Hasta'"); return; }
+    S.cortesEditados = S.cortesEditados.filter(e => e.hasta < d || e.desde > h);
+    S.cortesEditados.push({ desde: d, hasta: h });
+    if (S.entregas[c.desde] && c.desde !== d) { S.entregas[d] = S.entregas[c.desde]; }
+    refCorte = d; guardar(); pantallaCuenta();
+  };
+  document.getElementById("desde").onchange = cambiarCorte;
+  document.getElementById("hasta").onchange = cambiarCorte;
+  app.querySelectorAll("tbody tr").forEach(r => r.onclick = () => { editando = r.dataset.id; borrador = null; ir("viaje"); });
+  if (!vs.length) return;
+  const nombre = `Cuenta de cobro ${ddmmaaaa(c.desde).slice(0,5).replace("/","-")} al ${ddmmaaaa(c.hasta).replace(/\//g,"-")}.pdf`;
+  const hacer = () => { if (!window.jspdf) { aviso("Sin internet: no se pudo crear el PDF"); return null; } return crearPDF(c, vs, document.getElementById("entrega").value || fe).output("blob"); };
+  const bajar = blob => { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60000); };
+  document.getElementById("bajar").onclick = () => { const b = hacer(); if (b) { bajar(b); aviso("PDF descargado"); } };
+  document.getElementById("ver").onclick = () => { const b = hacer(); if (!b) return; const u = URL.createObjectURL(b); const w = window.open(u, "_blank"); if (!w) bajar(b); };
+  document.getElementById("enviar").onclick = async () => {
+    const b = hacer(); if (!b) return;
+    const file = new File([b], nombre, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: nombre }); } catch(e) {}
+    } else { bajar(b); aviso("PDF descargado. Envíelo desde Descargas."); }
+  };
+}
+
+/* ---------- PDF con el formato del Excel ---------- */
+function crearPDF(c, vs, entrega){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const M = 10, W = 277, X0 = M;
+  // Anchos de columna A..H
+  const cw = [34, 22, 44, 28, 32, 40, 37, 40];
+  const cx = [X0]; for (let i=0;i<8;i++) cx.push(cx[i] + cw[i]);
+  const AMARILLO = [255,217,102], GRIS = [231,230,230], NEGRO = [0,0,0];
+  doc.setLineWidth(0.25); doc.setDrawColor(...NEGRO); doc.setTextColor(...NEGRO);
+  // celda que ocupa columnas a..b (inclusive)
+  const celda = (y, h, a, b, txt, o = {}) => {
+    const x = cx[a], w = cx[b+1] - cx[a];
+    if (o.fill) { doc.setFillColor(...o.fill); doc.rect(x, y, w, h, "F"); }
+    if (o.borde !== false) doc.rect(x, y, w, h);
+    if (txt !== undefined && txt !== null && txt !== "") {
+      doc.setFont("helvetica", o.b ? "bold" : "normal"); doc.setFontSize(o.fs || 10);
+      const al = o.al || "center";
+      const tx = al === "left" ? x + 1.5 : al === "right" ? x + w - 1.5 : x + w/2;
+      doc.text(String(txt), tx, y + h/2, { align: al, baseline: "middle" });
+    }
+  };
+  const banda = (y, h) => celda(y, h, 0, 7, "", { fill: AMARILLO });
+  let y = M;
+  celda(y, 9, 0, 7, S.empresa.nombre, { fill: AMARILLO, b: true, fs: 15 }); y += 9;
+  celda(y, 6.5, 0, 7, S.empresa.direccion, { fill: GRIS, fs: 10 }); y += 6.5;
+  celda(y, 6.5, 0, 7, S.empresa.nit, { fill: GRIS, fs: 10 }); y += 6.5;
+  banda(y, 3); y += 3;
+  const hh = 7;
+  celda(y, hh, 0, 0, "DEBE A:", { fill: GRIS, b: true, al: "left" });
+  celda(y, hh, 1, 2, S.perfil.debeA);
+  celda(y, hh, 3, 3, "C.C", { fill: GRIS, b: true, al: "left" });
+  celda(y, hh, 4, 5, S.perfil.cc);
+  celda(y, hh, 6, 6, "FECHA:", { fill: GRIS, b: true, al: "left" });
+  celda(y, hh, 7, 7, ddmmaaaa(entrega)); y += hh;
+  celda(y, hh, 0, 0, "PLACA:", { fill: GRIS, b: true, al: "left" });
+  celda(y, hh, 1, 2, S.perfil.placa);
+  celda(y, hh, 3, 3, "CORTE", { fill: GRIS, b: true, al: "left" });
+  celda(y, hh, 4, 7, nombreCorte(c)); y += hh;
+  banda(y, 3); y += 3;
+  const encabezado = () => {
+    ["FECHA","ZONA","MUNICIPIO","KILOS","VALOR KILOS","VALOR BRUTO","INDICADOR","VALOR NETO"]
+      .forEach((t,i) => celda(y, 7.5, i, i, t, { fill: GRIS, b: true, fs: 10 }));
+    y += 7.5;
+  };
+  encabezado();
+  const pie = 3 + 7 + 3 + 16 + 6.5 * 4; // banda, total, banda, espacio firma, firma+nombre+cc+tel
+  const fin = 210 - M;
+  let rh = Math.max(5, Math.min(6.8, (fin - pie - y) / Math.max(vs.length, 1)));
+  vs.forEach((v, i) => {
+    if (y + rh > fin + 0.01) { doc.addPage(); y = M; encabezado(); }
+    const k = calcular(v);
+    const fs = 10;
+    celda(y, rh, 0, 0, ddmmaaaa(v.fecha), { fs });
+    celda(y, rh, 1, 1, S.perfil.zona, { fs });
+    celda(y, rh, 2, 2, v.destino, { fs });
+    celda(y, rh, 3, 3, kg(v.kilos), { fs });
+    celda(y, rh, 4, 4, k.valorKilo ? miles(k.valorKilo) : "", { fs });
+    celda(y, rh, 5, 5, plata(k.bruto), { fs });
+    celda(y, rh, 6, 6, plata(k.indicador), { fs });
+    celda(y, rh, 7, 7, plata(k.neto), { fs });
+    y += rh;
+  });
+  const t = totales(vs);
+  if (y + pie > fin + 0.01) { doc.addPage(); y = M; }
+  banda(y, 3); y += 3;
+  celda(y, 7, 0, 2, "TOTAL NETO", { b: true, fs: 10 });
+  celda(y, 7, 3, 3, kg(t.kilos), { b: true });
+  celda(y, 7, 4, 4, "");
+  celda(y, 7, 5, 5, plata(t.bruto), { b: true });
+  celda(y, 7, 6, 6, plata(t.indicador), { b: true });
+  celda(y, 7, 7, 7, plata(t.neto), { b: true }); y += 7;
+  banda(y, 3); y += 3;
+  // Espacio para firmar
+  celda(y, 16, 0, 3, ""); celda(y, 16, 4, 5, ""); celda(y, 16, 6, 7, ""); y += 16;
+  celda(y, 6.5, 0, 3, "FIRMA DEL TRANSPORTADOR", { b: true, fs: 9, al: "left" });
+  celda(y, 6.5, 4, 5, "REVISÓ", { b: true, fs: 9 });
+  celda(y, 6.5, 6, 7, "APROBÓ", { b: true, fs: 9 }); y += 6.5;
+  [["Nombre", S.perfil.nombreCompleto], ["C.C", S.perfil.cc], ["Telefono", S.perfil.telefono]].forEach(([a,b]) => {
+    celda(y, 6.5, 0, 0, a, { b: true, fs: 9, al: "left" });
+    celda(y, 6.5, 1, 7, b, { fs: 9, al: "left" }); y += 6.5;
+  });
+  return doc;
+}
+
+/* ---------- Ajustes ---------- */
+let listaSel = null;
+function pantallaAjustes(){
+  const ls = [...S.precios].sort((a,b) => a.desde < b.desde ? -1 : 1);
+  if (listaSel === null || !ls[listaSel]) listaSel = ls.length - 1;
+  const L = ls[listaSel];
+  const campo = (id, et, val, extra="") => `<label class="campo"><span>${et}</span><input type="text" id="${id}" value="${esc(val)}" ${extra}></label>`;
+  app.innerHTML = `
+    <button type="button" class="atras" id="volver">${ICON.izq} Volver</button>
+    <h1>Ajustes</h1>
+    <div class="card"><h2>Precios</h2>
+      <p class="nota">Cada viaje usa los precios vigentes en su fecha. Cuando cambien los precios del año, toque <b>Precios nuevos</b> y escriba los valores; los cortes anteriores no cambian.</p>
+      ${ls.length > 1 ? `<label class="campo"><span>Lista de precios</span><select id="sel">${ls.map((l,i) => `<option value="${i}" ${i===listaSel?"selected":""}>Desde ${ddmmaaaa(l.desde)}</option>`).join("")}</select></label>` : ""}
+      <label class="campo"><span>Vigentes desde</span><input type="date" id="pdesde" value="${L.desde}"></label>
+      <p class="nota">Valor kilo: se multiplica por los kilos. Indicador: valor fijo por viaje. Deje en 0 lo que no aplique.</p>
+      ${L.destinos.map((d,i) => `<div class="precio">
+        <div class="nom"><input type="text" data-i="${i}" data-c="nombre" value="${esc(d.nombre)}" aria-label="Destino"><button type="button" class="b-danger b-small" data-q="${i}" aria-label="Quitar ${esc(d.nombre)}">Quitar</button></div>
+        <label class="campo"><span>Valor kilo</span><input type="text" inputmode="numeric" data-i="${i}" data-c="valorKilo" value="${d.valorKilo}"></label>
+        <label class="campo"><span>Indicador</span><input type="text" inputmode="numeric" data-i="${i}" data-c="indicador" value="${d.indicador}"></label>
+      </div>`).join("")}
+      <div class="row"><button type="button" class="b-ghost b-small" id="addD">Agregar destino</button><button type="button" class="b-ghost b-small" id="nuevaL">Precios nuevos</button></div>
+      ${ls.length > 1 ? `<button type="button" class="b-danger b-small" id="delL">Borrar esta lista de precios</button>` : ""}
+    </div>
+    <div class="card"><h2>Datos del transportador</h2>
+      ${campo("p_debeA","Debe a (como sale arriba)",S.perfil.debeA)}
+      ${campo("p_nombreCompleto","Nombre completo (para la firma)",S.perfil.nombreCompleto)}
+      ${campo("p_cc","Cédula",S.perfil.cc,'inputmode="numeric"')}
+      ${campo("p_placa","Placa",S.perfil.placa)}
+      ${campo("p_telefono","Teléfono",S.perfil.telefono,'inputmode="tel"')}
+      ${campo("p_zona","Zona",S.perfil.zona)}
+    </div>
+    <div class="card"><h2>Empresa</h2>
+      ${campo("e_nombre","Nombre",S.empresa.nombre)}
+      ${campo("e_direccion","Dirección y teléfono",S.empresa.direccion)}
+      ${campo("e_nit","NIT",S.empresa.nit)}
+    </div>
+    <div class="card"><h2>Días de corte</h2>
+      <p class="nota">Día del mes en que empieza cada corte. Hoy: del ${S.corte.dia1} y del ${S.corte.dia2}. Las fechas de un corte también se pueden cambiar al sacar la cuenta de cobro.</p>
+      <div class="row">${campo("c_dia1","Primer corte empieza el día",S.corte.dia1,'inputmode="numeric"')}${campo("c_dia2","Segundo corte empieza el día",S.corte.dia2,'inputmode="numeric"')}</div>
+    </div>
+    <div class="card"><h2>Copia de seguridad</h2>
+      <p class="nota">Los viajes se guardan solo en este teléfono. Descargue una copia de vez en cuando por si se borra el navegador.</p>
+      <button type="button" class="b-ghost" id="copia">Descargar copia</button>
+      <label class="btn b-ghost" for="subir">Cargar una copia</label><input type="file" id="subir" accept="application/json,.json" hidden>
+    </div>`;
+  document.getElementById("volver").onclick = () => ir("inicio");
+  const sel = document.getElementById("sel"); if (sel) sel.onchange = () => { listaSel = Number(sel.value); pantallaAjustes(); };
+  document.getElementById("pdesde").onchange = e => { if (e.target.value) { L.desde = e.target.value; guardar(); listaSel = null; pantallaAjustes(); aviso("Guardado"); } };
+  app.querySelectorAll("[data-c]").forEach(inp => inp.onchange = () => {
+    const d = L.destinos[inp.dataset.i], c = inp.dataset.c;
+    if (c === "nombre") {
+      const viejo = d.nombre, nuevo = inp.value.trim().toUpperCase(); if (!nuevo) return;
+      d.nombre = nuevo;
+      S.viajes.forEach(v => { if (v.destino === viejo && listaPrecios(v.fecha) === L) v.destino = nuevo; });
+    } else d[c] = Number(String(inp.value).replace(/[^\d,]/g,"").replace(",", ".")) || 0;
+    guardar(); aviso("Guardado");
+  });
+  app.querySelectorAll("[data-q]").forEach(b => b.onclick = async () => {
+    const d = L.destinos[b.dataset.q];
+    const ok = await preguntar(`¿Quitar ${d.nombre}?`, "Ya no aparecerá como destino en esta lista de precios.",
+      [{ texto: "Sí, quitar", clase: "b-danger", valor: true }, { texto: "Cancelar", valor: false }]);
+    if (ok) { L.destinos.splice(b.dataset.q, 1); guardar(); pantallaAjustes(); }
+  });
+  document.getElementById("addD").onclick = () => { L.destinos.push({ nombre: "NUEVO DESTINO", valorKilo: 0, indicador: 0 }); guardar(); pantallaAjustes(); };
+  document.getElementById("nuevaL").onclick = () => {
+    const ult = ls[ls.length-1];
+    const y = Math.max(Number(ult.desde.slice(0,4)) + 1, Number(hoy().slice(0,4)));
+    S.precios.push({ desde: `${y}-01-01`, destinos: JSON.parse(JSON.stringify(ult.destinos)) });
+    guardar(); listaSel = null; pantallaAjustes(); aviso(`Lista nueva desde 01/01/${y}. Cambie los valores.`);
+  };
+  const delL = document.getElementById("delL");
+  if (delL) delL.onclick = async () => {
+    const ok = await preguntar("¿Borrar esta lista de precios?", `Precios desde ${ddmmaaaa(L.desde)}.`,
+      [{ texto: "Sí, borrar", clase: "b-danger", valor: true }, { texto: "Cancelar", valor: false }]);
+    if (ok) { S.precios = S.precios.filter(x => x !== L); listaSel = null; guardar(); pantallaAjustes(); }
+  };
+  const ligar = (pref, obj, num) => Object.keys(obj).forEach(k => { const el = document.getElementById(pref + k); if (el) el.onchange = () => {
+    obj[k] = num ? (Math.min(28, Math.max(1, parseInt(el.value,10) || obj[k]))) : el.value.trim(); guardar(); aviso("Guardado"); pintarEncabezado(); }; });
+  ligar("p_", S.perfil); ligar("e_", S.empresa); ligar("c_", S.corte, true);
+  document.getElementById("copia").onclick = () => {
+    const b = new Blob([JSON.stringify(S, null, 1)], { type: "application/json" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `copia-cuenta-cobro-${hoy()}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  document.getElementById("subir").onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const d = JSON.parse(await f.text());
+      if (!d.viajes || !d.precios) throw 0;
+      const ok = await preguntar("¿Cargar esta copia?", `Tiene ${d.viajes.length} viajes. Reemplaza lo que hay ahora en este teléfono.`,
+        [{ texto: "Sí, cargarla", clase: "b-primary", valor: true }, { texto: "Cancelar", valor: false }]);
+      if (ok) { S = d; cargarFaltantes(); guardar(); aviso("Copia cargada"); ir("inicio"); }
+    } catch(_) { aviso("Ese archivo no es una copia válida"); }
+  };
+}
+function cargarFaltantes(){ for (const k of Object.keys(INICIAL)) if (S[k] === undefined) S[k] = JSON.parse(JSON.stringify(INICIAL[k])); }
+function pintarEncabezado(){
+  document.getElementById("marca").textContent = S.empresa.nombre;
+  document.getElementById("quien").textContent = `${S.perfil.debeA.split(" ")[0]} · ${S.perfil.placa}`;
+}
+
+cargar(); pintar();
+</script>
+
+</body>
+</html>
