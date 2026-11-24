@@ -225,6 +225,24 @@ function cortePara(s){
   for (const e of S.cortesEditados) if (e.desde <= s && s <= e.hasta) return { ...e };
   return corteAuto(s);
 }
+/* Corte anterior o siguiente, saltando los huecos vacíos entre cortes guardados
+   (por ejemplo un domingo suelto entre dos cortes del Excel) */
+function esGuardado(k){ return S.cortesEditados.some(e => e.desde === k.desde && e.hasta === k.hasta); }
+function soloNoLaborales(k){ for (let d = k.desde; d <= k.hasta; d = sumar(d,1)) if (!diaNoLaboral(d)) return false; return true; }
+function vecino(c, dir){
+  const fechas = S.viajes.map(v => v.fecha).concat(S.cortesEditados.map(e => e.desde)).sort();
+  const primera = fechas[0], ultimaGuardada = S.cortesEditados.reduce((m, e) => e.hasta > m ? e.hasta : m, "");
+  let k = c;
+  for (let i = 0; i < 80; i++) {
+    k = cortePara(dir < 0 ? sumar(k.desde, -1) : sumar(k.hasta, 1));
+    if (esGuardado(k) || viajesDe(k).length) return k;
+    if (dir < 0 && (!primera || k.hasta < primera)) return null;            // antes de todo: no hay más
+    if (soloNoLaborales(k)) continue;                                       // domingos o festivos sueltos
+    if (k.hasta < ultimaGuardada) continue;                                 // hueco vacío entre cortes guardados
+    return k;
+  }
+  return null;
+}
 function nombreCorte(c){
   if (c.nombre) return c.nombre;
   const a = aFecha(c.desde), b = aFecha(c.hasta);
@@ -349,11 +367,13 @@ function pantallaInicio(){
   editando = null; borrador = null;
   const c = cortePara(refCorte || S.ultimaFecha || hoy());
   const vs = viajesDe(c), t = totales(vs);
-  const hayDespues = cortePara(sumar(c.hasta,1)).desde <= (S.ultimaFecha && S.ultimaFecha > hoy() ? S.ultimaFecha : hoy());
+  const tope = S.ultimaFecha && S.ultimaFecha > hoy() ? S.ultimaFecha : hoy();
+  const antes = vecino(c, -1), despues = vecino(c, 1);
+  const hayDespues = despues && despues.desde <= tope;
   app.innerHTML = `
     ${!guardaOK ? `<p class="aviso">Este teléfono no está guardando los datos. Abra la página en Chrome normal (no en modo incógnito).</p>` : ""}
     <section class="corte" aria-label="Corte">
-      <button type="button" id="ant" aria-label="Corte anterior">${ICON.izq}</button>
+      <button type="button" id="ant" aria-label="Corte anterior" ${antes ? "" : "disabled"}>${ICON.izq}</button>
       <div class="t"><small>Corte</small><strong>${esc(corteBonito(c))}</strong></div>
       <button type="button" id="sig" aria-label="Corte siguiente" ${hayDespues ? "" : "disabled"}>${ICON.der}</button>
     </section>
@@ -369,8 +389,8 @@ function pantallaInicio(){
     : `<p class="vacio">Todavía no hay viajes en este corte.<br>Toque <b>Anotar un viaje</b> para empezar.</p>`}
     <button type="button" class="b-blue" id="cuenta">${ICON.doc} Sacar la cuenta de cobro</button>
     <div class="pie"><button type="button" id="ajustes">Ajustes: precios y datos</button></div>`;
-  document.getElementById("ant").onclick = () => { refCorte = sumar(c.desde,-1); pintar(); };
-  document.getElementById("sig").onclick = () => { refCorte = sumar(c.hasta,1); pintar(); };
+  document.getElementById("ant").onclick = () => { if (antes) { refCorte = antes.desde; pintar(); } };
+  document.getElementById("sig").onclick = () => { if (despues) { refCorte = despues.desde; pintar(); } };
   document.getElementById("nuevo").onclick = () => { editando = null; borrador = null; ir("viaje"); };
   document.getElementById("cuenta").onclick = () => { refCorte = c.desde; ir("cuenta"); };
   document.getElementById("ajustes").onclick = () => ir("ajustes");
