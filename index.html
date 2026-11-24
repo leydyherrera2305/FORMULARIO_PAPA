@@ -126,7 +126,7 @@ tfoot td{font-weight:700;border-bottom:none}
    DATOS INICIALES (se pueden cambiar luego en "Ajustes")
    ============================================================ */
 const INICIAL = {
-  perfil: { debeA: "Jorge Alonso Herrera", nombreCompleto: "JORGE ALONSO HERRERA VILLALOBOS",
+  perfil: { debeA: "", nombreCompleto: "",
             cc: "", placa: "SOQ068", telefono: "", zona: "C20" },
   empresa: { nombre: "TRANSAVINCO", direccion: "Carrera 66 N° 96-86/ Los Andes / Teléfono: 226384 - 2267125", nit: "900.73.905-9" },
   // Cortes: uno empieza el día 10 y otro el día 24 de cada mes (como en el Excel)
@@ -255,7 +255,11 @@ function listaPrecios(fecha){
 }
 function calcular(v){
   const p = listaPrecios(v.fecha).destinos.find(d => d.nombre === v.destino) || { valorKilo: 0, indicador: 0 };
-  const vk = Number(p.valorKilo)||0, ind = Number(p.indicador)||0;
+  const vk = Number(p.valorKilo)||0;
+  // El indicador se cobra una sola vez por día y destino (como en el Excel: el segundo viaje del día no lleva indicador)
+  const otroAntes = S.viajes.some(x => x !== v && x.fecha === v.fecha && x.destino === v.destino &&
+    ((x.creado||0) < (v.creado||0) || ((x.creado||0) === (v.creado||0) && x.id < v.id)));
+  const ind = otroAntes ? 0 : (Number(p.indicador)||0);
   const bruto = v.kilos * vk;
   return { valorKilo: vk, bruto, indicador: ind, neto: bruto + ind };
 }
@@ -328,9 +332,11 @@ window.addEventListener("hashchange", pintar);
 
 function pintar(){
   document.getElementById("marca").textContent = S.empresa.nombre;
-  document.getElementById("quien").textContent = `${S.perfil.debeA.split(" ")[0]} · ${S.perfil.placa}`;
+  document.getElementById("quien").textContent = [S.perfil.debeA.split(" ")[0], S.perfil.placa].filter(Boolean).join(" · ");
   const v = location.hash.replace("#","");
-  if (v === "viaje") pantallaViaje();
+  if (faltanDatos()) pantallaBienvenida();
+  else if (v === "viaje") pantallaViaje();
+  else if (v === "corte") pantallaCorte();
   else if (v === "cuenta") pantallaCuenta();
   else if (v === "ajustes") pantallaAjustes();
   else pantallaInicio();
@@ -345,12 +351,12 @@ function pantallaInicio(){
   const hayDespues = cortePara(sumar(c.hasta,1)).desde <= (S.ultimaFecha && S.ultimaFecha > hoy() ? S.ultimaFecha : hoy());
   app.innerHTML = `
     ${!guardaOK ? `<p class="aviso">Este teléfono no está guardando los datos. Abra la página en Chrome normal (no en modo incógnito).</p>` : ""}
-    ${!S.perfil.cc || !S.perfil.telefono ? `<button type="button" class="aviso" id="faltan" style="min-height:0;font-weight:400;text-align:left;justify-content:flex-start">Faltan la cédula o el teléfono para la cuenta de cobro. Toque aquí para llenarlos.</button>` : ""}
     <section class="corte" aria-label="Corte">
       <button type="button" id="ant" aria-label="Corte anterior">${ICON.izq}</button>
       <div class="t"><small>Corte</small><strong>${esc(corteBonito(c))}</strong></div>
       <button type="button" id="sig" aria-label="Corte siguiente" ${hayDespues ? "" : "disabled"}>${ICON.der}</button>
     </section>
+    <button type="button" class="b-ghost b-small" id="fechasCorte" style="width:100%">Cambiar fechas del corte</button>
     <div class="card">
       <div class="resumen"><span>${vs.length} ${vs.length === 1 ? "viaje" : "viajes"}</span><strong>${plata(t.neto)}</strong></div>
     </div>
@@ -367,7 +373,7 @@ function pantallaInicio(){
   document.getElementById("nuevo").onclick = () => { editando = null; borrador = null; ir("viaje"); };
   document.getElementById("cuenta").onclick = () => { refCorte = c.desde; ir("cuenta"); };
   document.getElementById("ajustes").onclick = () => ir("ajustes");
-  const fal = document.getElementById("faltan"); if (fal) fal.onclick = () => ir("ajustes");
+  document.getElementById("fechasCorte").onclick = () => { refCorte = c.desde; ir("corte"); };
   app.querySelectorAll(".viajes button").forEach(b => b.onclick = () => { editando = b.dataset.id; borrador = null; ir("viaje"); });
 }
 
@@ -509,18 +515,13 @@ function pantallaCuenta(){
   document.getElementById("volver").onclick = () => ir("inicio");
   document.getElementById("entrega").onchange = e => { S.entregas[c.desde] = e.target.value; guardar(); };
   const cambiarCorte = () => {
-    const d = document.getElementById("desde").value, h = document.getElementById("hasta").value;
-    if (!d || !h || d > h) { aviso("La fecha 'Desde' debe ser antes de 'Hasta'"); return; }
-    S.cortesEditados = S.cortesEditados.filter(e => e.hasta < d || e.desde > h);
-    S.cortesEditados.push({ desde: d, hasta: h });
-    if (S.entregas[c.desde] && c.desde !== d) { S.entregas[d] = S.entregas[c.desde]; }
-    refCorte = d; guardar(); pantallaCuenta();
+    if (fijarCorte(c, document.getElementById("desde").value, document.getElementById("hasta").value)) pantallaCuenta();
   };
   document.getElementById("desde").onchange = cambiarCorte;
   document.getElementById("hasta").onchange = cambiarCorte;
   app.querySelectorAll("tbody tr").forEach(r => r.onclick = () => { editando = r.dataset.id; borrador = null; ir("viaje"); });
   if (!vs.length) return;
-  const nombre = `Cuenta de cobro ${ddmmaaaa(c.desde).slice(0,5).replace("/","-")} al ${ddmmaaaa(c.hasta).replace(/\//g,"-")}.pdf`;
+  const nombre = `${nombreCorte(c)} ${c.hasta.slice(0,4)}.pdf`;
   const hacer = () => { if (!window.jspdf) { aviso("Sin internet: no se pudo crear el PDF"); return null; } return crearPDF(c, vs, document.getElementById("entrega").value || fe).output("blob"); };
   const bajar = blob => { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60000); };
   document.getElementById("bajar").onclick = () => { const b = hacer(); if (b) { bajar(b); aviso("PDF descargado"); } };
@@ -529,7 +530,7 @@ function pantallaCuenta(){
     const b = hacer(); if (!b) return;
     const file = new File([b], nombre, { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: nombre }); } catch(e) {}
+      try { await navigator.share({ files: [file] }); } catch(e) {}
     } else { bajar(b); aviso("PDF descargado. Envíelo desde Descargas."); }
   };
 }
@@ -662,7 +663,7 @@ function pantallaAjustes(){
     <div class="card"><h2>Copia de seguridad</h2>
       <p class="nota">Los viajes se guardan solo en este teléfono. Descargue una copia de vez en cuando por si se borra el navegador.</p>
       <button type="button" class="b-ghost" id="copia">Descargar copia</button>
-      <label class="btn b-ghost" for="subir">Cargar una copia</label><input type="file" id="subir" accept="application/json,.json" hidden>
+      <label class="btn b-ghost" for="subir">Cargar cortes anteriores o una copia</label><input type="file" id="subir" accept="application/json,.json" hidden>
     </div>`;
   document.getElementById("volver").onclick = () => ir("inicio");
   const sel = document.getElementById("sel"); if (sel) sel.onchange = () => { listaSel = Number(sel.value); pantallaAjustes(); };
@@ -707,6 +708,22 @@ function pantallaAjustes(){
     const f = e.target.files[0]; if (!f) return;
     try {
       const d = JSON.parse(await f.text());
+      if (d.tipo === "historial" && Array.isArray(d.viajes)) {
+        const ok = await preguntar("¿Agregar los cortes anteriores?", `Son ${d.viajes.length} viajes. Los viajes que ya están anotados no se repiten.`,
+          [{ texto: "Sí, agregarlos", clase: "b-primary", valor: true }, { texto: "Cancelar", valor: false }]);
+        if (!ok) return;
+        let n = 0;
+        for (const v of d.viajes) {
+          if (S.viajes.some(x => x.fecha === v.fecha && x.destino === v.destino && Math.abs(x.kilos - v.kilos) < 0.005)) continue;
+          S.viajes.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,8), fecha: v.fecha, destino: v.destino, kilos: Number(v.kilos), creado: n });
+          n++;
+        }
+        for (const c of d.cortes || []) {
+          if (!S.cortesEditados.some(e => !(e.hasta < c.desde || e.desde > c.hasta))) S.cortesEditados.push({ desde: c.desde, hasta: c.hasta });
+          if (c.entrega && !S.entregas[c.desde]) S.entregas[c.desde] = c.entrega;
+        }
+        guardar(); aviso(`Se agregaron ${n} viajes`); ir("inicio"); return;
+      }
       if (!d.viajes || !d.precios) throw 0;
       const ok = await preguntar("¿Cargar esta copia?", `Tiene ${d.viajes.length} viajes. Reemplaza lo que hay ahora en este teléfono.`,
         [{ texto: "Sí, cargarla", clase: "b-primary", valor: true }, { texto: "Cancelar", valor: false }]);
@@ -717,7 +734,83 @@ function pantallaAjustes(){
 function cargarFaltantes(){ for (const k of Object.keys(INICIAL)) if (S[k] === undefined) S[k] = JSON.parse(JSON.stringify(INICIAL[k])); }
 function pintarEncabezado(){
   document.getElementById("marca").textContent = S.empresa.nombre;
-  document.getElementById("quien").textContent = `${S.perfil.debeA.split(" ")[0]} · ${S.perfil.placa}`;
+  document.getElementById("quien").textContent = [S.perfil.debeA.split(" ")[0], S.perfil.placa].filter(Boolean).join(" · ");
+}
+
+/* ---------- Fechas del corte ---------- */
+function fijarCorte(c, d, h){
+  if (!d || !h || d > h) { aviso("La fecha 'Desde' debe ser antes de 'Hasta'"); return false; }
+  S.cortesEditados = S.cortesEditados.filter(e => e.hasta < d || e.desde > h);
+  S.cortesEditados.push({ desde: d, hasta: h });
+  if (S.entregas[c.desde] && c.desde !== d) S.entregas[d] = S.entregas[c.desde];
+  refCorte = d; guardar(); return true;
+}
+function pantallaCorte(){
+  const c = cortePara(refCorte || S.ultimaFecha || hoy());
+  app.innerHTML = `
+    <button type="button" class="atras" id="volver">${ICON.izq} Volver</button>
+    <h1>Fechas del corte</h1>
+    <p class="muted">Escoja el primer día y el último día de este corte.</p>
+    <div class="card">
+      <label class="q" for="cd">Primer día</label>
+      <input type="date" id="cd" value="${c.desde}">
+      <p class="dia" id="cdTxt">${cap(largo(c.desde))}</p>
+      <label class="q" for="ch">Último día</label>
+      <input type="date" id="ch" value="${c.hasta}">
+      <p class="dia" id="chTxt">${cap(largo(c.hasta))}</p>
+    </div>
+    <p class="nota" id="cNom">${esc(nombreCorte(c))}</p>
+    <p class="err" id="cErr" role="alert"></p>
+    <button type="button" class="b-primary" id="cGuardar">Guardar fechas</button>`;
+  const $d = document.getElementById("cd"), $h = document.getElementById("ch");
+  const eco = () => {
+    document.getElementById("cdTxt").textContent = $d.value ? cap(largo($d.value)) : "";
+    document.getElementById("chTxt").textContent = $h.value ? cap(largo($h.value)) : "";
+    const ok = $d.value && $h.value && $d.value <= $h.value;
+    document.getElementById("cErr").textContent = ok ? "" : "El primer día debe ser antes del último día.";
+    document.getElementById("cNom").textContent = ok ? nombreCorte({ desde: $d.value, hasta: $h.value }) : "";
+  };
+  $d.onchange = eco; $h.onchange = eco;
+  document.getElementById("volver").onclick = () => ir("inicio");
+  document.getElementById("cGuardar").onclick = () => { if (fijarCorte(c, $d.value, $h.value)) { aviso("Fechas del corte guardadas"); ir("inicio"); } };
+}
+
+/* ---------- Primera vez: datos del transportador ---------- */
+function faltanDatos(){ return !S.perfil.nombreCompleto || !S.perfil.cc || !S.perfil.telefono; }
+function pantallaBienvenida(){
+  const P = S.perfil;
+  app.innerHTML = `
+    <h1>Bienvenido</h1>
+    <p class="muted">Antes de empezar, escriba sus datos. Salen en la cuenta de cobro y solo se piden una vez.</p>
+    <div class="card">
+      <label class="q" for="bNom">Nombre completo</label>
+      <input type="text" id="bNom" autocomplete="name" autocapitalize="words" value="${esc(P.nombreCompleto)}">
+      <label class="q" for="bCc">Cédula</label>
+      <input type="text" id="bCc" inputmode="numeric" value="${esc(P.cc)}">
+      <label class="q" for="bTel">Celular</label>
+      <input type="text" id="bTel" inputmode="tel" autocomplete="tel" value="${esc(P.telefono)}">
+      <label class="q" for="bPla">Placa del carro</label>
+      <input type="text" id="bPla" autocapitalize="characters" value="${esc(P.placa)}">
+    </div>
+    <p class="err" id="bErr" role="alert"></p>
+    <button type="button" class="b-primary" id="bOk">Guardar y empezar</button>`;
+  document.getElementById("bOk").onclick = () => {
+    const nom = document.getElementById("bNom").value.trim().replace(/\s+/g, " ");
+    const cc = document.getElementById("bCc").value.replace(/\D/g, "");
+    const tel = document.getElementById("bTel").value.replace(/\D/g, "");
+    const pla = document.getElementById("bPla").value.trim().toUpperCase();
+    const err = document.getElementById("bErr");
+    if (nom.split(" ").length < 2) { err.textContent = "Escriba el nombre completo (nombre y apellido)."; return; }
+    if (cc.length < 5) { err.textContent = "Revise la cédula: escriba solo los números."; return; }
+    if (tel.length < 7) { err.textContent = "Revise el celular: escriba solo los números."; return; }
+    if (!pla) { err.textContent = "Falta la placa."; return; }
+    const titulo = nom.toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase());
+    const partes = titulo.split(" ");
+    P.nombreCompleto = nom.toUpperCase();
+    P.debeA = partes.length >= 4 ? partes.slice(0, 3).join(" ") : titulo;
+    P.cc = cc; P.telefono = tel; P.placa = pla;
+    guardar(); pintarEncabezado(); aviso("Datos guardados"); ir("inicio"); pintar();
+  };
 }
 
 cargar(); pintar();
